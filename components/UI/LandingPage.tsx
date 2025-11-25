@@ -4,11 +4,24 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import React from 'react';
-import { Play, Wallet, ChevronRight, Layers, Cpu, Globe, Zap, Shield, Twitter, MessageCircle, Github, Disc, ShoppingBag, Trophy, TrendingUp, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Wallet, ChevronRight, Zap, Globe, Shield, MessageCircle, Github, FileText, Copy, Check, ExternalLink, ShoppingBag, Trophy } from 'lucide-react';
 import { useStore } from '../../store';
 import { audio } from '../System/Audio';
 import { GameStatus } from '../../types';
+
+// Custom Icons
+const XLogo = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+        <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z" />
+    </svg>
+);
+
+const DiscordLogo = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 127.14 96.36" aria-hidden="true" className={className} fill="currentColor">
+        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.11,77.11,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.89,105.89,0,0,0,126.6,80.22c1.24-23.23-13.28-47.57-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+    </svg>
+);
 
 const Section: React.FC<{ title: string; children: React.ReactNode; className?: string; id?: string }> = ({ title, children, className = "", id }) => (
     <section id={id} className={`py-20 px-6 border-t border-white/10 relative ${className}`}>
@@ -32,14 +45,20 @@ const FeatureCard: React.FC<{ icon: any; title: string; desc: string }> = ({ ico
 );
 
 const StepCard: React.FC<{ num: string; title: string; desc: string }> = ({ num, title, desc }) => (
-    <div className="relative pl-12 md:pl-0">
-        <div className="hidden md:block absolute -left-[25px] top-0 w-[50px] h-[50px] bg-black border border-cyan-500 rounded-full z-10 flex items-center justify-center font-bold text-cyan-400">
-            {num}
+    <div className="relative pl-16 md:pl-0 group">
+        {/* Desktop Circle */}
+        <div className="hidden md:flex absolute -left-[25px] top-0 w-[50px] h-[50px] bg-black border-2 border-cyan-500 rounded-full z-10 items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)] group-hover:scale-110 transition-transform">
+             <span className="font-bold text-cyan-400 text-xl font-mono">{num}</span>
         </div>
-        <div className="md:border-l border-white/10 md:pl-12 pb-12 relative">
-             <div className="md:hidden absolute left-[-35px] top-0 w-8 h-8 bg-cyan-900 rounded-full flex items-center justify-center text-xs font-bold text-white mb-2">{num}</div>
-             <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-             <p className="text-gray-400">{desc}</p>
+        
+        {/* Mobile Circle */}
+        <div className="md:hidden absolute left-0 top-0 w-10 h-10 bg-cyan-900/50 border border-cyan-500 rounded-full flex items-center justify-center z-10">
+             <span className="font-bold text-cyan-300 text-sm font-mono">{num}</span>
+        </div>
+
+        <div className="md:border-l-2 border-white/10 md:pl-12 pb-12 relative min-h-[100px]">
+             <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">{title}</h3>
+             <p className="text-gray-400 leading-relaxed max-w-md">{desc}</p>
         </div>
     </div>
 );
@@ -54,22 +73,30 @@ const LEADERBOARD_DATA = [
 ];
 
 const TICKER_ITEMS = [
-    "ETH: $2,842.10", 
-    "GAS: 12 GWEI", 
+    "NETWORK: ETHEREUM L2", 
+    "STATUS: LIVE", 
     "$GEMS: SIMULATION MODE", 
-    "PHASE 2 COMING Q4", 
     "PROTOCOL UPDATED", 
     "MARKETPLACE DEMO LIVE", 
     "LEGENDARY RUNNER PREVIEW"
 ];
 
+const CONTRACT_ADDRESS = "0x11c9513afd6f403A0414240B185d3FdA4139f7D1";
+
 export const LandingPage: React.FC = () => {
     const { startGame, setStatus } = useStore();
+    const [copied, setCopied] = useState(false);
 
     const handleStart = () => {
         audio.init();
         audio.startBGM();
         startGame();
+    };
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(CONTRACT_ADDRESS);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     return (
@@ -94,9 +121,15 @@ export const LandingPage: React.FC = () => {
                             WHITEPAPER
                         </button>
                     </div>
-                    <button onClick={handleStart} className="px-6 py-2 bg-white text-black font-bold rounded hover:scale-105 transition-transform text-sm font-mono">
-                        PLAY DEMO
-                    </button>
+                    <div className="flex items-center gap-3">
+                         <a href="https://app.uniswap.org" target="_blank" rel="noopener noreferrer" className="hidden md:flex items-center gap-2 px-4 py-2 bg-pink-600/10 border border-pink-500/30 text-pink-400 font-bold rounded hover:bg-pink-600/20 transition-all text-xs font-mono">
+                            <img src="https://images.seeklogo.com/logo-png/39/2/uniswap-logo-png_seeklogo-398214.png" className="w-5 h-5" alt="Uniswap" />
+                            GET $GEMS
+                         </a>
+                         <button onClick={handleStart} className="px-6 py-2 bg-white text-black font-bold rounded hover:scale-105 transition-transform text-sm font-mono">
+                             PLAY DEMO
+                         </button>
+                    </div>
                 </div>
             </nav>
 
@@ -179,6 +212,50 @@ export const LandingPage: React.FC = () => {
                 </div>
             </Section>
 
+            {/* Community & Contract Section */}
+            <Section title="COMMUNITY & CONTRACT" id="socials">
+                <div className="bg-gray-900/40 border border-white/10 rounded-2xl p-8 backdrop-blur-md">
+                     <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                         <div className="w-full md:w-auto">
+                             <div className="text-sm text-gray-400 mb-2 font-mono uppercase tracking-widest">Official CA</div>
+                             <button 
+                                onClick={handleCopy}
+                                className="group relative w-full md:w-auto flex items-center justify-between bg-black/50 border border-cyan-500/30 rounded-full px-6 py-4 hover:border-cyan-500 hover:shadow-[0_0_15px_rgba(6,182,212,0.2)] transition-all"
+                             >
+                                 <span className="font-mono text-cyan-400 text-sm md:text-base mr-4 truncate max-w-[250px] md:max-w-none">
+                                     {CONTRACT_ADDRESS}
+                                 </span>
+                                 {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5 text-gray-500 group-hover:text-white" />}
+                                 {copied && <span className="absolute -top-8 right-0 bg-green-500 text-black text-xs font-bold px-2 py-1 rounded">COPIED!</span>}
+                             </button>
+                         </div>
+                         
+                         <div className="flex flex-wrap justify-center gap-4">
+                             <a href="#" className="flex items-center gap-2 px-4 py-3 bg-gray-800 rounded-lg hover:bg-cyan-900/30 hover:text-cyan-400 transition-colors border border-gray-700">
+                                 <ExternalLink className="w-4 h-4" />
+                                 <span className="font-bold text-sm">DEXSCREENER</span>
+                             </a>
+                             <a href="#" className="flex items-center gap-2 px-4 py-3 bg-gray-800 rounded-lg hover:bg-cyan-900/30 hover:text-cyan-400 transition-colors border border-gray-700">
+                                 <ExternalLink className="w-4 h-4" />
+                                 <span className="font-bold text-sm">DEXTOOLS</span>
+                             </a>
+                             <a href="#" className="flex items-center gap-2 px-4 py-3 bg-gray-800 rounded-lg hover:bg-pink-900/30 hover:text-pink-400 transition-colors border border-gray-700">
+                                 <img src="https://images.seeklogo.com/logo-png/39/2/uniswap-logo-png_seeklogo-398214.png" className="w-4 h-4 grayscale group-hover:grayscale-0" alt="Uni" />
+                                 <span className="font-bold text-sm">UNISWAP</span>
+                             </a>
+                             <a href="#" className="flex items-center gap-2 px-4 py-3 bg-gray-800 rounded-lg hover:bg-black/50 hover:text-white transition-colors border border-gray-700">
+                                 <XLogo className="w-4 h-4" />
+                                 <span className="font-bold text-sm">X</span>
+                             </a>
+                             <a href="#" className="flex items-center gap-2 px-4 py-3 bg-gray-800 rounded-lg hover:bg-indigo-900/30 hover:text-indigo-400 transition-colors border border-gray-700">
+                                 <DiscordLogo className="w-5 h-5" />
+                                 <span className="font-bold text-sm">DISCORD</span>
+                             </a>
+                         </div>
+                     </div>
+                </div>
+            </Section>
+
             {/* Marketplace Preview */}
             <Section title="NFT MARKETPLACE" id="marketplace" className="bg-gradient-to-br from-purple-900/20 to-black">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -193,16 +270,20 @@ export const LandingPage: React.FC = () => {
                          </p>
                          <ul className="space-y-4 mb-8">
                              <li className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-gray-400 font-bold">1x</div>
-                                 <span className="text-gray-300">Common Runners</span>
+                                 <div className="w-10 h-10 rounded bg-gray-800 flex items-center justify-center text-gray-400 font-bold border border-gray-700">1x</div>
+                                 <span className="text-gray-300 font-mono">Common Runners</span>
                              </li>
                              <li className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded bg-blue-900/50 flex items-center justify-center text-blue-400 font-bold">2x</div>
-                                 <span className="text-blue-200">Rare Runners (Velocity Series)</span>
+                                 <div className="w-10 h-10 rounded bg-blue-900/30 flex items-center justify-center text-blue-400 font-bold border border-blue-500/30">1.7x</div>
+                                 <span className="text-blue-200 font-mono">Rare Runners (Velocity Series)</span>
                              </li>
                              <li className="flex items-center gap-3">
-                                 <div className="w-8 h-8 rounded bg-yellow-900/50 flex items-center justify-center text-yellow-400 font-bold">5x</div>
-                                 <span className="text-yellow-200">Legendary Runners (Genesis)</span>
+                                 <div className="w-10 h-10 rounded bg-purple-900/30 flex items-center justify-center text-purple-400 font-bold border border-purple-500/30">3x</div>
+                                 <span className="text-purple-200 font-mono">Epic Runners (Phantom Series)</span>
+                             </li>
+                             <li className="flex items-center gap-3">
+                                 <div className="w-10 h-10 rounded bg-yellow-900/30 flex items-center justify-center text-yellow-400 font-bold border border-yellow-500/30">5x</div>
+                                 <span className="text-yellow-200 font-mono">Legendary Runners (Genesis)</span>
                              </li>
                          </ul>
                          <button 
@@ -260,7 +341,7 @@ export const LandingPage: React.FC = () => {
             {/* How to Earn */}
             <Section title="HOW TO EARN" id="earn" className="bg-gradient-to-b from-black to-gray-900">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div className="space-y-0">
+                    <div className="space-y-4">
                          <StepCard 
                             num="01"
                             title="Start the Run"
@@ -353,11 +434,11 @@ export const LandingPage: React.FC = () => {
                     </div>
                     
                     <div className="flex gap-6">
-                        <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-cyan-500 hover:text-black transition-all">
-                            <Twitter className="w-5 h-5" />
+                        <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all">
+                            <XLogo className="w-5 h-5" />
                         </a>
-                        <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-purple-500 hover:text-black transition-all">
-                            <MessageCircle className="w-5 h-5" />
+                        <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-[#5865F2] hover:text-white transition-all">
+                            <DiscordLogo className="w-5 h-5" />
                         </a>
                         <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
                             <Github className="w-5 h-5" />
