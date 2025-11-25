@@ -5,7 +5,7 @@
 */
 
 import React from 'react';
-import { Play, Wallet, ChevronRight, Layers, Cpu, Globe, Zap, Shield, Twitter, MessageCircle, Github, Disc, ShoppingBag, Trophy, TrendingUp } from 'lucide-react';
+import { Play, Wallet, ChevronRight, Layers, Cpu, Globe, Zap, Shield, Twitter, MessageCircle, Github, Disc, ShoppingBag, Trophy, TrendingUp, FileText } from 'lucide-react';
 import { useStore } from '../../store';
 import { audio } from '../System/Audio';
 import { GameStatus } from '../../types';
@@ -53,6 +53,16 @@ const LEADERBOARD_DATA = [
     { rank: 5, user: '0x992...2211', score: '1,500,100', reward: '250 $GEMS' },
 ];
 
+const TICKER_ITEMS = [
+    "ETH: $2,842.10", 
+    "GAS: 12 GWEI", 
+    "$GEMS: SIMULATION MODE", 
+    "PHASE 2 COMING Q4", 
+    "PROTOCOL UPDATED", 
+    "MARKETPLACE DEMO LIVE", 
+    "LEGENDARY RUNNER PREVIEW"
+];
+
 export const LandingPage: React.FC = () => {
     const { startGame, setStatus } = useStore();
 
@@ -74,13 +84,15 @@ export const LandingPage: React.FC = () => {
                          <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-600 rounded flex items-center justify-center font-bold text-black font-cyber">R</div>
                          <span className="font-cyber font-bold text-xl tracking-widest">RUN-ETH</span>
                     </div>
-                    <div className="hidden md:flex gap-8 text-sm font-mono text-gray-300">
+                    <div className="hidden md:flex gap-8 text-sm font-mono text-gray-300 items-center">
                         <a href="#about" className="hover:text-cyan-400 transition-colors">ABOUT</a>
                         <button onClick={() => setStatus(GameStatus.MARKETPLACE)} className="hover:text-cyan-400 transition-colors flex items-center gap-1">
                             MARKETPLACE <span className="bg-purple-600 text-white text-[10px] px-1 rounded">NEW</span>
                         </button>
-                        <a href="#earn" className="hover:text-cyan-400 transition-colors">HOW TO EARN</a>
-                        <a href="#roadmap" className="hover:text-cyan-400 transition-colors">ROADMAP</a>
+                        <a href="#earn" className="hover:text-cyan-400 transition-colors">EARN</a>
+                        <button onClick={() => setStatus(GameStatus.WHITEPAPER)} className="hover:text-cyan-400 transition-colors">
+                            WHITEPAPER
+                        </button>
                     </div>
                     <button onClick={handleStart} className="px-6 py-2 bg-white text-black font-bold rounded hover:scale-105 transition-transform text-sm font-mono">
                         PLAY DEMO
@@ -133,16 +145,16 @@ export const LandingPage: React.FC = () => {
                 </div>
             </header>
 
-            {/* Ticker */}
-            <div className="bg-cyan-900/20 border-y border-cyan-500/20 py-3 overflow-hidden">
-                <div className="animate-marquee whitespace-nowrap flex gap-12 text-sm font-mono text-cyan-400">
-                     <span>ETH: $2,842.10</span>
-                     <span>GAS: 12 GWEI</span>
-                     <span>$GEMS: SIMULATION MODE</span>
-                     <span>PHASE 2 COMING Q4</span>
-                     <span>PROTOCOL UPDATED</span>
-                     <span>MARKETPLACE DEMO LIVE</span>
-                     <span>LEGENDARY RUNNER PREVIEW</span>
+            {/* Ticker - Fixed Animation */}
+            <div className="bg-cyan-900/20 border-y border-cyan-500/20 py-3 overflow-hidden flex">
+                <div className="animate-marquee whitespace-nowrap flex gap-12 text-sm font-mono text-cyan-400 px-6">
+                     {/* Duplicate items to create seamless loop */}
+                     {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+                         <span key={i} className="flex items-center gap-2">
+                             <span className="w-1 h-1 bg-cyan-400 rounded-full opacity-50"></span>
+                             {item}
+                         </span>
+                     ))}
                 </div>
             </div>
 
@@ -277,6 +289,30 @@ export const LandingPage: React.FC = () => {
                 </div>
             </Section>
 
+            {/* Whitepaper CTA - REDESIGNED */}
+            <Section title="DOCUMENTATION" id="whitepaper" className="relative overflow-hidden">
+                 {/* Background decoration */}
+                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+
+                 <div className="relative z-10 bg-gray-900/40 backdrop-blur-sm border border-white/10 p-8 md:p-12 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-cyan-500/30 transition-colors">
+                     <div>
+                         <div className="flex items-center gap-3 mb-4">
+                             <div className="p-2 bg-gray-800 rounded text-cyan-400"><FileText className="w-6 h-6" /></div>
+                             <h3 className="text-3xl font-black font-cyber text-white">PROTOCOL WHITEPAPER</h3>
+                         </div>
+                         <p className="text-gray-400 max-w-xl text-lg leading-relaxed">
+                             Deep dive into the <span className="text-cyan-400">game theory</span>, tokenomics mathematics, and the smart contract architecture powering the RUN-ETH ecosystem.
+                         </p>
+                     </div>
+                     <button 
+                        onClick={() => setStatus(GameStatus.WHITEPAPER)}
+                        className="px-8 py-4 bg-transparent border border-white/20 text-white font-bold text-lg rounded hover:bg-white hover:text-black transition-all flex items-center gap-3 font-mono group-hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                     >
+                         READ V1.0 <ChevronRight className="w-5 h-5" />
+                     </button>
+                 </div>
+            </Section>
+
             {/* Roadmap */}
             <Section title="ROADMAP" id="roadmap">
                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -331,9 +367,9 @@ export const LandingPage: React.FC = () => {
                 <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-900 flex flex-col md:flex-row justify-between text-xs text-gray-600 font-mono">
                     <p>© 2024 RUN-ETH PROTOCOL. ALL RIGHTS RESERVED.</p>
                     <div className="flex gap-4 mt-4 md:mt-0">
+                        <button onClick={() => setStatus(GameStatus.WHITEPAPER)} className="hover:text-white">WHITEPAPER</button>
                         <a href="#" className="hover:text-white">TERMS</a>
                         <a href="#" className="hover:text-white">PRIVACY</a>
-                        <a href="#" className="hover:text-white">WHITEPAPER</a>
                     </div>
                 </div>
             </footer>

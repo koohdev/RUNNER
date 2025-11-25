@@ -11,7 +11,8 @@ export enum GameStatus {
   SHOP = 'SHOP',
   GAME_OVER = 'GAME_OVER',
   VICTORY = 'VICTORY',
-  MARKETPLACE = 'MARKETPLACE'
+  MARKETPLACE = 'MARKETPLACE',
+  WHITEPAPER = 'WHITEPAPER'
 }
 
 export enum ObjectType {

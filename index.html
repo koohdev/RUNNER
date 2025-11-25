@@ -39,6 +39,20 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #06b6d4; /* cyan-500 */
       }
+
+      /* Marquee Animation */
+      @keyframes marquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); } 
+      }
+      .animate-marquee {
+        animation: marquee 30s linear infinite;
+        width: fit-content;
+      }
+      /* Ensure pause on hover if desired, though optional */
+      .animate-marquee:hover {
+         /* animation-play-state: paused; */
+      }
     </style>
   <script type="importmap">
 {

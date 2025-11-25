@@ -15,6 +15,7 @@ import { Effects } from './components/World/Effects';
 import { HUD } from './components/UI/HUD';
 import { LandingPage } from './components/UI/LandingPage';
 import { Marketplace } from './components/UI/Marketplace';
+import { Whitepaper } from './components/UI/Whitepaper';
 import { useStore } from './store';
 import { GameStatus } from './types';
 import { audio } from './components/System/Audio';
@@ -25,8 +26,8 @@ const CameraController = () => {
   const { laneCount, status } = useStore();
   
   useFrame((state, delta) => {
-    // If on Menu/Landing page or Marketplace, do a slow flyby
-    if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE) {
+    // If on Menu/Landing page or Marketplace or Whitepaper, do a slow flyby
+    if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE || status === GameStatus.WHITEPAPER) {
         // Slow drift
         camera.position.lerp(new THREE.Vector3(0, 4, 12), delta * 0.5);
         camera.lookAt(0, 2, -20);
@@ -69,7 +70,7 @@ const MusicController = () => {
       // Audio init handled by button click in LandingPage/HUD to satisfy autoplay policy
       // but we ensure BGM is trying to play here if status changes externally
       // audio.startBGM(); // Removed automatic start here to prevent race conditions with user gesture
-    } else if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE) {
+    } else if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE || status === GameStatus.WHITEPAPER) {
        // Stop BGM or play a different track? 
        // For now, let LandingPage handle explicit start on "Play"
        audio.stopBGM();
@@ -115,6 +116,7 @@ function App() {
       switch(status) {
           case GameStatus.MENU: return <LandingPage />;
           case GameStatus.MARKETPLACE: return <Marketplace />;
+          case GameStatus.WHITEPAPER: return <Whitepaper />;
           default: return <HUD />;
       }
   };
