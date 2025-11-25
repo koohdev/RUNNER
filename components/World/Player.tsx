@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -8,7 +9,7 @@ import React, { useRef, useEffect, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useStore } from '../../store';
-import { LANE_WIDTH, GameStatus } from '../../types';
+import { LANE_WIDTH, GameStatus, AVAILABLE_RUNNERS } from '../../types';
 import { audio } from '../System/Audio';
 
 // Physics Constants
@@ -38,7 +39,7 @@ export const Player: React.FC = () => {
   const rightLegRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
 
-  const { status, laneCount, takeDamage, hasDoubleJump, activateImmortality, isImmortalityActive } = useStore();
+  const { status, laneCount, takeDamage, hasDoubleJump, activateImmortality, isImmortalityActive, activeRunnerId } = useStore();
   
   const [lane, setLane] = React.useState(0);
   const targetX = useRef(0);
@@ -57,8 +58,11 @@ export const Player: React.FC = () => {
 
   // Memoized Materials
   const { armorMaterial, jointMaterial, glowMaterial, shadowMaterial } = useMemo(() => {
-      const armorColor = isImmortalityActive ? '#ffd700' : '#00aaff';
-      const glowColor = isImmortalityActive ? '#ffffff' : '#00ffff';
+      // Find active runner color config
+      const runner = AVAILABLE_RUNNERS.find(r => r.id === activeRunnerId) || AVAILABLE_RUNNERS[0];
+
+      const armorColor = isImmortalityActive ? '#ffd700' : runner.color;
+      const glowColor = isImmortalityActive ? '#ffffff' : runner.secondaryColor;
       
       return {
           armorMaterial: new THREE.MeshStandardMaterial({ color: armorColor, roughness: 0.3, metalness: 0.8 }),
@@ -66,7 +70,7 @@ export const Player: React.FC = () => {
           glowMaterial: new THREE.MeshBasicMaterial({ color: glowColor }),
           shadowMaterial: new THREE.MeshBasicMaterial({ color: '#000000', opacity: 0.3, transparent: true })
       };
-  }, [isImmortalityActive]); // Only recreate if immortality state changes (for color shift)
+  }, [isImmortalityActive, activeRunnerId]); // Recreate if immortality or runner changes
 
   // --- Reset State on Game Start ---
   useEffect(() => {

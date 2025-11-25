@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -9,7 +10,8 @@ export enum GameStatus {
   PLAYING = 'PLAYING',
   SHOP = 'SHOP',
   GAME_OVER = 'GAME_OVER',
-  VICTORY = 'VICTORY'
+  VICTORY = 'VICTORY',
+  MARKETPLACE = 'MARKETPLACE'
 }
 
 export enum ObjectType {
@@ -40,14 +42,15 @@ export const RUN_SPEED_BASE = 22.5;
 export const SPAWN_DISTANCE = 120;
 export const REMOVE_DISTANCE = 20; // Behind player
 
-// Google-ish Neon Colors: Blue, Red, Yellow, Blue, Green, Red
+// Google-ish Neon Colors adapted for RUN-ETH
 export const GEMINI_COLORS = [
-    '#2979ff', // G - Blue
-    '#ff1744', // E - Red
-    '#ffea00', // M - Yellow
-    '#2979ff', // I - Blue
-    '#00e676', // N - Green
-    '#ff1744', // I - Red
+    '#2979ff', // R - Blue
+    '#ff1744', // U - Red
+    '#ffea00', // N - Yellow
+    '#ffffff', // - - White
+    '#2979ff', // E - Blue
+    '#00e676', // T - Green
+    '#ff1744', // H - Red
 ];
 
 export interface ShopItem {
@@ -58,3 +61,57 @@ export interface ShopItem {
     icon: any; // Lucide icon component
     oneTime?: boolean; // If true, remove from pool after buying
 }
+
+export interface Runner {
+    id: string;
+    name: string;
+    rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY';
+    multiplier: number;
+    color: string;
+    secondaryColor: string; // For details
+    price: number; // in $GEMS
+    description: string;
+}
+
+export const AVAILABLE_RUNNERS: Runner[] = [
+    {
+        id: 'runner_default',
+        name: 'PROTO-01',
+        rarity: 'COMMON',
+        multiplier: 1.0,
+        color: '#00aaff',
+        secondaryColor: '#00ffff',
+        price: 0,
+        description: 'Standard issue runner unit.'
+    },
+    {
+        id: 'runner_crimson',
+        name: 'RED VELOCITY',
+        rarity: 'RARE',
+        multiplier: 1.2,
+        color: '#ff0055',
+        secondaryColor: '#ff99aa',
+        price: 5000,
+        description: 'Optimized for high-speed data extraction.'
+    },
+    {
+        id: 'runner_phantom',
+        name: 'PHANTOM OPS',
+        rarity: 'EPIC',
+        multiplier: 2.0,
+        color: '#9d00ff',
+        secondaryColor: '#d400ff',
+        price: 15000,
+        description: 'Stealth coating with advanced mining algorithms.'
+    },
+    {
+        id: 'runner_gold',
+        name: 'ETHEREUM PRIME',
+        rarity: 'LEGENDARY',
+        multiplier: 5.0,
+        color: '#ffd700',
+        secondaryColor: '#ffffff',
+        price: 50000,
+        description: 'The ultimate validator node avatar. Maximum yield.'
+    }
+];

@@ -408,7 +408,7 @@ export const LevelManager: React.FC = () => {
 
          if (isLetterDue) {
              const lane = getRandomLane(laneCount);
-             const target = ['G','E','M','I','N','I'];
+             const target = ['R', 'U', 'N', '-', 'E', 'T', 'H'];
              
              const availableIndices = target.map((_, i) => i).filter(i => !collectedLetters.includes(i));
 

@@ -1,10 +1,11 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
 
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Environment } from './components/World/Environment';
@@ -12,22 +13,31 @@ import { Player } from './components/World/Player';
 import { LevelManager } from './components/World/LevelManager';
 import { Effects } from './components/World/Effects';
 import { HUD } from './components/UI/HUD';
+import { LandingPage } from './components/UI/LandingPage';
+import { Marketplace } from './components/UI/Marketplace';
 import { useStore } from './store';
+import { GameStatus } from './types';
+import { audio } from './components/System/Audio';
 
 // Dynamic Camera Controller
 const CameraController = () => {
   const { camera, size } = useThree();
-  const { laneCount } = useStore();
+  const { laneCount, status } = useStore();
   
   useFrame((state, delta) => {
+    // If on Menu/Landing page or Marketplace, do a slow flyby
+    if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE) {
+        // Slow drift
+        camera.position.lerp(new THREE.Vector3(0, 4, 12), delta * 0.5);
+        camera.lookAt(0, 2, -20);
+        return;
+    }
+
     // Determine if screen is narrow (mobile portrait)
     const aspect = size.width / size.height;
-    const isMobile = aspect < 1.2; // Threshold for "mobile-like" narrowness or square-ish displays
+    const isMobile = aspect < 1.2; 
 
     // Calculate expansion factors
-    // Mobile requires backing up significantly more because vertical FOV is fixed in Three.js,
-    // meaning horizontal view shrinks as aspect ratio drops.
-    // We use more aggressive multipliers for mobile to keep outer lanes in frame.
     const heightFactor = isMobile ? 2.0 : 0.5;
     const distFactor = isMobile ? 4.5 : 1.0;
 
@@ -44,20 +54,51 @@ const CameraController = () => {
     camera.position.lerp(targetPos, delta * 2.0);
     
     // Look further down the track to see the end of lanes
-    // Adjust look target slightly based on height to maintain angle
     camera.lookAt(0, 0, -30); 
   });
   
   return null;
 };
 
+// Music Controller Component
+const MusicController = () => {
+  const { status, speed } = useStore();
+
+  useEffect(() => {
+    if (status === GameStatus.PLAYING) {
+      // Audio init handled by button click in LandingPage/HUD to satisfy autoplay policy
+      // but we ensure BGM is trying to play here if status changes externally
+      // audio.startBGM(); // Removed automatic start here to prevent race conditions with user gesture
+    } else if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE) {
+       // Stop BGM or play a different track? 
+       // For now, let LandingPage handle explicit start on "Play"
+       audio.stopBGM();
+    } else {
+      audio.stopBGM();
+    }
+    
+    return () => {
+      audio.stopBGM();
+    };
+  }, [status]);
+
+  useFrame(() => {
+    if (status === GameStatus.PLAYING) {
+      audio.setGameSpeed(speed);
+    }
+  });
+
+  return null;
+};
+
 function Scene() {
+  const { status } = useStore();
   return (
     <>
         <Environment />
         <group>
-            {/* Attach a userData to identify player group for LevelManager collision logic */}
             <group userData={{ isPlayer: true }} name="PlayerGroup">
+                 {/* Show Player in menu for visual interest, but maybe idle? */}
                  <Player />
             </group>
             <LevelManager />
@@ -68,16 +109,28 @@ function Scene() {
 }
 
 function App() {
+  const { status } = useStore();
+
+  const renderUI = () => {
+      switch(status) {
+          case GameStatus.MENU: return <LandingPage />;
+          case GameStatus.MARKETPLACE: return <Marketplace />;
+          default: return <HUD />;
+      }
+  };
+
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden select-none">
-      <HUD />
+      {renderUI()}
+      
       <Canvas
         shadows
         dpr={[1, 1.5]} 
         gl={{ antialias: false, stencil: false, depth: true, powerPreference: "high-performance" }}
-        // Initial camera, matches the controller base
         camera={{ position: [0, 5.5, 8], fov: 60 }}
+        className="absolute inset-0 z-0"
       >
+        <MusicController />
         <CameraController />
         <Suspense fallback={null}>
             <Scene />

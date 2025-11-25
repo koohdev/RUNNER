@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -5,7 +6,7 @@
 
 
 import { create } from 'zustand';
-import { GameStatus, RUN_SPEED_BASE } from './types';
+import { GameStatus, RUN_SPEED_BASE, Runner, AVAILABLE_RUNNERS } from './types';
 
 interface GameState {
   status: GameStatus;
@@ -23,6 +24,11 @@ interface GameState {
   hasDoubleJump: boolean;
   hasImmortality: boolean;
   isImmortalityActive: boolean;
+  
+  // Marketplace / Runners
+  ownedRunners: string[]; // IDs
+  activeRunnerId: string;
+  gemMultiplier: number;
 
   // Actions
   startGame: () => void;
@@ -40,9 +46,13 @@ interface GameState {
   openShop: () => void;
   closeShop: () => void;
   activateImmortality: () => void;
+
+  // Runner Management
+  buyRunner: (runnerId: string, cost: number) => boolean;
+  equipRunner: (runnerId: string) => void;
 }
 
-const GEMINI_TARGET = ['G', 'E', 'M', 'I', 'N', 'I'];
+const GEMINI_TARGET = ['R', 'U', 'N', '-', 'E', 'T', 'H'];
 const MAX_LEVEL = 3;
 
 export const useStore = create<GameState>((set, get) => ({
@@ -60,6 +70,11 @@ export const useStore = create<GameState>((set, get) => ({
   hasDoubleJump: false,
   hasImmortality: false,
   isImmortalityActive: false,
+
+  // Default Ownership
+  ownedRunners: ['runner_default'],
+  activeRunnerId: 'runner_default',
+  gemMultiplier: 1.0,
 
   startGame: () => set({ 
     status: GameStatus.PLAYING, 
@@ -107,7 +122,7 @@ export const useStore = create<GameState>((set, get) => ({
   addScore: (amount) => set((state) => ({ score: state.score + amount })),
   
   collectGem: (value) => set((state) => ({ 
-    score: state.score + value, 
+    score: state.score + (value * state.gemMultiplier), 
     gemsCollected: state.gemsCollected + 1 
   })),
 
@@ -120,7 +135,6 @@ export const useStore = create<GameState>((set, get) => ({
       const newLetters = [...collectedLetters, index];
       
       // LINEAR SPEED INCREASE: Add 10% of BASE speed per letter
-      // This ensures 110% -> 120% -> 130% consistent steps
       const speedIncrease = RUN_SPEED_BASE * 0.10;
       const nextSpeed = speed + speedIncrease;
 
@@ -133,7 +147,6 @@ export const useStore = create<GameState>((set, get) => ({
       if (newLetters.length === GEMINI_TARGET.length) {
         if (level < MAX_LEVEL) {
             // Immediately advance level
-            // The Shop Portal will be spawned by LevelManager at the start of the new level
             get().advanceLevel();
         } else {
             // Victory Condition
@@ -150,15 +163,13 @@ export const useStore = create<GameState>((set, get) => ({
       const { level, laneCount, speed } = get();
       const nextLevel = level + 1;
       
-      // LINEAR LEVEL INCREASE: Add 40% of BASE speed per level
-      // Combined with the 6 letters (60%), this totals +100% speed per full level cycle
       const speedIncrease = RUN_SPEED_BASE * 0.40;
       const newSpeed = speed + speedIncrease;
 
       set({
           level: nextLevel,
           laneCount: Math.min(laneCount + 2, 9), // Expand lanes
-          status: GameStatus.PLAYING, // Keep playing, user runs into shop
+          status: GameStatus.PLAYING,
           speed: newSpeed,
           collectedLetters: [] // Reset letters
       });
@@ -205,6 +216,29 @@ export const useStore = create<GameState>((set, get) => ({
       }
   },
 
+  buyRunner: (runnerId, cost) => {
+      const { score, ownedRunners } = get();
+      if (ownedRunners.includes(runnerId)) return true; // Already owned
+      
+      if (score >= cost) {
+          set({
+              score: score - cost,
+              ownedRunners: [...ownedRunners, runnerId]
+          });
+          return true;
+      }
+      return false;
+  },
+
+  equipRunner: (runnerId) => {
+      const runner = AVAILABLE_RUNNERS.find(r => r.id === runnerId);
+      if (runner) {
+          set({
+              activeRunnerId: runnerId,
+              gemMultiplier: runner.multiplier
+          });
+      }
+  },
+
   setStatus: (status) => set({ status }),
-  increaseLevel: () => set((state) => ({ level: state.level + 1 })),
 }));
