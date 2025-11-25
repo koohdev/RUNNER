@@ -5,7 +5,7 @@
 */
 
 import React, { useState } from 'react';
-import { Wallet, ChevronRight, Zap, Globe, Shield, MessageCircle, Github, FileText, Copy, Check, ExternalLink, ShoppingBag, Trophy } from 'lucide-react';
+import { Wallet, ChevronRight, Zap, Globe, Shield, MessageCircle, FileText, Copy, Check, ExternalLink, ShoppingBag, Trophy, Users } from 'lucide-react';
 import { useStore } from '../../store';
 import { audio } from '../System/Audio';
 import { GameStatus } from '../../types';
@@ -20,6 +20,12 @@ const XLogo = ({ className }: { className?: string }) => (
 const DiscordLogo = ({ className }: { className?: string }) => (
     <svg viewBox="0 0 127.14 96.36" aria-hidden="true" className={className} fill="currentColor">
         <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.11,77.11,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.89,105.89,0,0,0,126.6,80.22c1.24-23.23-13.28-47.57-18.9-72.15ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+    </svg>
+);
+
+const TelegramLogo = ({ className }: { className?: string }) => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.52-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.44-.41-1.38-.87.03-.24.38-.49 1.03-.75 4.03-1.75 6.72-2.91 8.07-3.48 3.85-1.63 4.64-1.91 5.17-1.92.12 0 .38.03.55.17.14.12.18.28.2.43-.01.07-.01.21-.02.3z" />
     </svg>
 );
 
@@ -63,6 +69,20 @@ const StepCard: React.FC<{ num: string; title: string; desc: string }> = ({ num,
     </div>
 );
 
+const TeamCard: React.FC<{ name: string; role: string; gradient: string; color: string }> = ({ name, role, gradient, color }) => (
+    <div className="group relative p-8 bg-gray-900/40 border border-white/10 rounded-xl hover:border-cyan-500/50 transition-all hover:bg-gray-800/60">
+        <div className={`w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-br ${gradient} p-1 shadow-[0_0_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform`}>
+            <div className="w-full h-full bg-black rounded-full flex items-center justify-center overflow-hidden relative">
+                 <div className="absolute inset-0 opacity-40 mix-blend-screen" style={{backgroundColor: color}}></div>
+                 <span className="relative z-10 text-5xl drop-shadow-lg">🏃</span>
+            </div>
+        </div>
+        <h3 className="text-2xl font-bold text-white text-center font-cyber tracking-wide mb-1">{name}</h3>
+        <p className="text-cyan-400 text-sm text-center font-mono uppercase tracking-widest">{role}</p>
+    </div>
+);
+
+
 // Mock Leaderboard Data
 const LEADERBOARD_DATA = [
     { rank: 1, user: '0x71C...9A23', score: '2,840,500', reward: '5000 $GEMS' },
@@ -81,15 +101,14 @@ const TICKER_ITEMS = [
     "LEGENDARY RUNNER PREVIEW"
 ];
 
-const CONTRACT_ADDRESS = "0x11c9513afd6f403A0414240B185d3FdA4139f7D1";
+const CONTRACT_ADDRESS = "DITO CA";
 
 export const LandingPage: React.FC = () => {
     const { startGame, setStatus } = useStore();
     const [copied, setCopied] = useState(false);
 
     const handleStart = () => {
-        audio.init();
-        audio.startBGM();
+        // App.tsx handles global audio init now, just switch state
         startGame();
     };
 
@@ -338,6 +357,36 @@ export const LandingPage: React.FC = () => {
                 </div>
             </Section>
 
+            {/* THE TEAM */}
+            <Section title="THE TEAM" id="team">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <TeamCard 
+                        name="0xARCHITECT" 
+                        role="FOUNDER & DEV" 
+                        gradient="from-yellow-700 to-yellow-500" 
+                        color="#ffd700" 
+                    />
+                    <TeamCard 
+                        name="PIXEL_VAULT" 
+                        role="ART DIRECTOR" 
+                        gradient="from-purple-900 to-pink-900" 
+                        color="#d400ff" 
+                    />
+                    <TeamCard 
+                        name="BLOCK_RUNNER" 
+                        role="LEAD GAMEPLAY" 
+                        gradient="from-cyan-900 to-blue-900" 
+                        color="#00ffff" 
+                    />
+                     <TeamCard 
+                        name="ETHER_MOD" 
+                        role="COMMUNITY LEAD" 
+                        gradient="from-green-900 to-emerald-900" 
+                        color="#00ff00" 
+                    />
+                </div>
+            </Section>
+
             {/* How to Earn */}
             <Section title="HOW TO EARN" id="earn" className="bg-gradient-to-b from-black to-gray-900">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -440,8 +489,8 @@ export const LandingPage: React.FC = () => {
                         <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-[#5865F2] hover:text-white transition-all">
                             <DiscordLogo className="w-5 h-5" />
                         </a>
-                        <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                            <Github className="w-5 h-5" />
+                        <a href="#" className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center hover:bg-[#0088cc] hover:text-white transition-all">
+                             <TelegramLogo className="w-5 h-5" />
                         </a>
                     </div>
                 </div>

@@ -1,9 +1,53 @@
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
 */
 
+import { ThreeElements } from '@react-three/fiber';
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      group: ThreeElements['group'];
+      mesh: ThreeElements['mesh'];
+      points: ThreeElements['points'];
+      instancedMesh: ThreeElements['instancedMesh'];
+      
+      // Lights & Environs
+      ambientLight: ThreeElements['ambientLight'];
+      directionalLight: ThreeElements['directionalLight'];
+      pointLight: ThreeElements['pointLight'];
+      spotLight: ThreeElements['spotLight'];
+      fog: ThreeElements['fog'];
+      color: ThreeElements['color'];
+      
+      // Geometries
+      bufferGeometry: ThreeElements['bufferGeometry'];
+      boxGeometry: ThreeElements['boxGeometry'];
+      planeGeometry: ThreeElements['planeGeometry'];
+      sphereGeometry: ThreeElements['sphereGeometry'];
+      cylinderGeometry: ThreeElements['cylinderGeometry'];
+      coneGeometry: ThreeElements['coneGeometry'];
+      torusGeometry: ThreeElements['torusGeometry'];
+      ringGeometry: ThreeElements['ringGeometry'];
+      circleGeometry: ThreeElements['circleGeometry'];
+      icosahedronGeometry: ThreeElements['icosahedronGeometry'];
+      octahedronGeometry: ThreeElements['octahedronGeometry'];
+      dodecahedronGeometry: ThreeElements['dodecahedronGeometry'];
+      tetrahedronGeometry: ThreeElements['tetrahedronGeometry'];
+      
+      // Materials
+      meshBasicMaterial: ThreeElements['meshBasicMaterial'];
+      meshStandardMaterial: ThreeElements['meshStandardMaterial'];
+      meshPhysicalMaterial: ThreeElements['meshPhysicalMaterial'];
+      pointsMaterial: ThreeElements['pointsMaterial'];
+      shaderMaterial: ThreeElements['shaderMaterial'];
+      
+      // Attributes
+      bufferAttribute: ThreeElements['bufferAttribute'];
+    }
+  }
+}
 
 export enum GameStatus {
   MENU = 'MENU',

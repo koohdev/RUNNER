@@ -17,7 +17,7 @@ import { LandingPage } from './components/UI/LandingPage';
 import { Marketplace } from './components/UI/Marketplace';
 import { Whitepaper } from './components/UI/Whitepaper';
 import { useStore } from './store';
-import { GameStatus } from './types';
+import { GameStatus, RUN_SPEED_BASE } from './types';
 import { audio } from './components/System/Audio';
 
 // Dynamic Camera Controller
@@ -66,26 +66,41 @@ const MusicController = () => {
   const { status, speed } = useStore();
 
   useEffect(() => {
-    if (status === GameStatus.PLAYING) {
-      // Audio init handled by button click in LandingPage/HUD to satisfy autoplay policy
-      // but we ensure BGM is trying to play here if status changes externally
-      // audio.startBGM(); // Removed automatic start here to prevent race conditions with user gesture
-    } else if (status === GameStatus.MENU || status === GameStatus.MARKETPLACE || status === GameStatus.WHITEPAPER) {
-       // Stop BGM or play a different track? 
-       // For now, let LandingPage handle explicit start on "Play"
-       audio.stopBGM();
-    } else {
-      audio.stopBGM();
-    }
+    // Global listener to initialize audio context on first user interaction
+    const initAudio = () => {
+        if (audio.ctx?.state === 'suspended' || !audio.ctx) {
+            audio.init();
+        }
+        if (!audio.isPlaying) {
+            audio.startBGM();
+        }
+    };
+    
+    // Listen for any click or keypress to start audio engine
+    window.addEventListener('pointerdown', initAudio, { once: true });
+    window.addEventListener('keydown', initAudio, { once: true });
     
     return () => {
-      audio.stopBGM();
+         window.removeEventListener('pointerdown', initAudio);
+         window.removeEventListener('keydown', initAudio);
     };
+  }, []);
+
+  useEffect(() => {
+    // Switch between Menu Mode (Muffled/Chill) and Game Mode (Clear/Fast)
+    if (status === GameStatus.PLAYING) {
+       audio.setMenuMode(false);
+    } else {
+       audio.setMenuMode(true);
+    }
   }, [status]);
 
   useFrame(() => {
     if (status === GameStatus.PLAYING) {
       audio.setGameSpeed(speed);
+    } else {
+      // Idle tempo for menu (slower than game)
+      audio.setGameSpeed(RUN_SPEED_BASE * 0.7); 
     }
   });
 
